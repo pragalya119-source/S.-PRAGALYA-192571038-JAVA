@@ -1,4 +1,4 @@
-class Vehicle {
+public class Vehicle {
     String regNo;
 
     Vehicle(String regNo) {
@@ -6,10 +6,7 @@ class Vehicle {
     }
 
     double calculateFee(int minutes) {
-        int hours = minutes / 60;
-        if (minutes % 60 != 0) {
-            hours++;
-        }
+        int hours = (minutes + 59) / 60;
         return hours * 10;
     }
 
@@ -18,12 +15,34 @@ class Vehicle {
     }
 
     public boolean equals(Object o) {
+        if (!(o instanceof Vehicle))
+            return false;
+
         Vehicle v = (Vehicle) o;
         return regNo.equals(v.regNo);
     }
 
     public int hashCode() {
         return regNo.hashCode();
+    }
+
+    public static void main(String[] args) {
+        final int MAX_HOURS = 8;
+
+        Vehicle a = new Vehicle("TN01A1");
+        Vehicle b = new Car("TN02B2");
+
+        System.out.println(a + " " + a.calculateFee(130));
+        System.out.println(b + " " + b.calculateFee(130));
+
+        System.out.println(
+            new Vehicle("TN05X5").equals(new Car("TN05X5"))
+        );
+
+        System.out.println(MAX_HOURS);
+
+        TypeVehicle t = new TypeVehicle("TN02B2", "Car");
+        System.out.println(t.calculateFee(130));
     }
 }
 
@@ -33,10 +52,7 @@ class Car extends Vehicle {
     }
 
     double calculateFee(int minutes) {
-        int hours = minutes / 60;
-        if (minutes % 60 != 0) {
-            hours++;
-        }
+        int hours = (minutes + 59) / 60;
         return hours * 30;
     }
 
@@ -46,8 +62,7 @@ class Car extends Vehicle {
 }
 
 class TypeVehicle {
-    String regNo;
-    String type;
+    String regNo, type;
 
     TypeVehicle(String regNo, String type) {
         this.regNo = regNo;
@@ -55,30 +70,13 @@ class TypeVehicle {
     }
 
     double calculateFee(int minutes) {
-        int hours = minutes / 60;
-        if (minutes % 60 != 0) {
-            hours++;
-        }
-        if (type.equals("TwoWheeler")) {
+        int hours = (minutes + 59) / 60;
+
+        if (type.equals("TwoWheeler"))
             return hours * 10;
-        } else if (type.equals("Car")) {
+        else if (type.equals("Car"))
             return hours * 30;
-        }
-        return 0;
-    }
-}
-
-public class Task7 {
-    public static void main(String[] args) {
-        final int MAX_HOURS = 8;
-        Vehicle a = new Vehicle("TN01A1");
-        Vehicle b = new Car("TN02B2");
-        System.out.println(a + " " + a.calculateFee(130));
-        System.out.println(b + " " + b.calculateFee(130));
-        System.out.println(new Vehicle("TN05X5").equals(new Car("TN05X5")));
-        System.out.println(MAX_HOURS);
-
-        TypeVehicle t = new TypeVehicle("TN02B2", "Car");
-        System.out.println(t.calculateFee(130));
+        else
+            return 0;
     }
 }
