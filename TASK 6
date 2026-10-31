@@ -1,4 +1,5 @@
-class Vehicle {
+
+public class Vehicle {
     String regNo;
     double rate;
 
@@ -14,6 +15,23 @@ class Vehicle {
             hours++;
         }
         return hours * rate;
+    }
+
+    public static void main(String[] args) {
+
+        ElectricCar ev = new ElectricCar("TN03C3", 40);
+        System.out.println(ev.calculateFee(130) + ev.chargingFee(10));
+
+        Student s = new Student("Asha");
+        Visitor v = new Visitor("Guest");
+
+        System.out.println(s.name + " " + s.freeParking());
+        System.out.println(v.name + " " + v.freeParking());
+
+        VehicleC bike = new VehicleC("TN09Z9",
+                new VehicleType("EBike", 5));
+
+        System.out.println(bike.calculateFee(130));
     }
 }
 
@@ -92,20 +110,5 @@ class VehicleC {
             hours++;
         }
         return hours * type.rate;
-    }
-}
-
-public class Task6 {
-    public static void main(String[] args) {
-        ElectricCar ev = new ElectricCar("TN03C3", 40);
-        System.out.println(ev.calculateFee(130) + ev.chargingFee(10));
-
-        Student s = new Student("Asha");
-        Visitor v = new Visitor("Guest");
-        System.out.println(s.name + " " + s.freeParking());
-        System.out.println(v.name + " " + v.freeParking());
-
-        VehicleC bike = new VehicleC("TN09Z9", new VehicleType("EBike", 5));
-        System.out.println(bike.calculateFee(130));
     }
 }
