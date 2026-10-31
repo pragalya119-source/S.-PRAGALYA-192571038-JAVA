@@ -1,5 +1,12 @@
-interface Chargeable {
-    double chargingFee(int kWh);
+
+public class Chargeable {
+    public static void main(String[] args) {
+        ElectricCar ev = new ElectricCar("TN03C3");
+        System.out.println("Amount due: " + ev.amountDue());
+
+        ElectricCar2 ev2 = new ElectricCar2();
+        System.out.println(ev2.ratePerHour() + " " + ev2.chargingFee(10));
+    }
 }
 
 interface Payable {
@@ -24,7 +31,7 @@ abstract class Vehicle {
     }
 }
 
-class ElectricCar extends Vehicle implements Chargeable, Payable {
+class ElectricCar extends Vehicle implements Payable {
     ElectricCar(String regNo) {
         super(regNo);
     }
@@ -57,15 +64,5 @@ class ElectricCar2 extends ChargeableA implements VehicleI {
 
     double chargingFee(int kWh) {
         return kWh * 12;
-    }
-}
-
-public class Task9 {
-    public static void main(String[] args) {
-        ElectricCar ev = new ElectricCar("TN03C3");
-        System.out.println("Amount due: " + ev.amountDue());
-
-        ElectricCar2 ev2 = new ElectricCar2();
-        System.out.println(ev2.ratePerHour() + " " + ev2.chargingFee(10));
     }
 }
