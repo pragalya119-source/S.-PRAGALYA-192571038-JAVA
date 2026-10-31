@@ -1,8 +1,18 @@
-// ==================== Task11.java ====================
-
 import java.util.ArrayList;
 import java.util.HashMap;
 
+// MAIN CLASS
+public class Main {
+    public static void main(String[] args) {
+        System.out.println("===== TASK 11 =====");
+        Task11.main(args);
+
+        System.out.println("\n===== TASK 12 =====");
+        Task12.main(args);
+    }
+}
+
+// VEHICLE CLASS
 class Vehicle {
     String regNo;
     double rate;
@@ -14,14 +24,17 @@ class Vehicle {
 
     double calculateFee(int minutes) {
         int hours = minutes / 60;
+
         if (minutes % 60 != 0) {
             hours++;
         }
 
         double fee = hours * rate;
+
         if (fee > rate * 8) {
             fee = rate * 8;
         }
+
         return fee;
     }
 
@@ -30,18 +43,21 @@ class Vehicle {
     }
 }
 
+// TWO WHEELER
 class TwoWheeler extends Vehicle {
     TwoWheeler(String regNo) {
         super(regNo, 10);
     }
 }
 
+// CAR
 class Car extends Vehicle {
     Car(String regNo) {
         super(regNo, 30);
     }
 }
 
+// ELECTRIC CAR
 class ElectricCar extends Car {
     ElectricCar(String regNo) {
         super(regNo);
@@ -52,8 +68,10 @@ class ElectricCar extends Car {
     }
 }
 
+// TICKET CLASS
 class Ticket {
     static int count = 0;
+
     int ticketNo;
     Vehicle vehicle;
     int floor;
@@ -70,6 +88,7 @@ class Ticket {
     }
 }
 
+// PARKING LOT CLASS
 class ParkingLot {
     String[][] slots;
     Ticket[] tickets = new Ticket[100];
@@ -90,6 +109,7 @@ class ParkingLot {
                 return i;
             }
         }
+
         return -1;
     }
 
@@ -103,9 +123,11 @@ class ParkingLot {
             for (int s = 0; s < slots[f].length; s++) {
                 if (slots[f][s] == null) {
                     slots[f][s] = v.regNo;
+
                     Ticket t = new Ticket(v, f, s, entryMinute);
                     tickets[ticketCount] = t;
                     ticketCount++;
+
                     return t;
                 }
             }
@@ -139,6 +161,7 @@ class ParkingLot {
 
         fee = fee + t.vehicle.chargingFee(kWh);
         collection = collection + fee;
+
         return fee;
     }
 
@@ -160,7 +183,9 @@ class ParkingLot {
     }
 }
 
-public class Task11 {
+// TASK 11
+class Task11 {
+
     static Vehicle makeVehicle(String type, String regNo) {
         if (type.equals("TWOWHEELER")) {
             return new TwoWheeler(regNo);
@@ -175,6 +200,7 @@ public class Task11 {
     }
 
     public static void main(String[] args) {
+
         int[] floors_lot = {2, 1};
         ParkingLot lot = new ParkingLot(floors_lot);
 
@@ -184,8 +210,10 @@ public class Task11 {
 
         System.out.println("Test 1 expected 0,0 actual "
                 + t1.floor + "," + t1.slot);
+
         System.out.println("Test 2 expected 1,0 actual "
                 + t3.floor + "," + t3.slot);
+
         System.out.println("Test 3 expected true actual "
                 + (t1.ticketNo != t2.ticketNo));
 
@@ -194,16 +222,21 @@ public class Task11 {
 
         System.out.println("Test 5 expected 30.0 actual "
                 + lot.exit("TN01A1", 130, false, 0));
+
         System.out.println("Test 6 expected 0.0 actual "
                 + lot.exit("TN02B2", 0, false, 0));
+
         System.out.println("Test 7 expected 180.0 actual "
                 + lot.exit("TN03C3", 90, false, 10));
 
         Car c = new Car("X");
+
         System.out.println("Test 8 expected 30.0 actual "
                 + c.calculateFee(60));
+
         System.out.println("Test 9 expected 60.0 actual "
                 + c.calculateFee(61));
+
         System.out.println("Test 10 expected 240.0 actual "
                 + c.calculateFee(1440));
 
@@ -212,6 +245,7 @@ public class Task11 {
 
         int[] floors_lot2 = {2};
         ParkingLot lot2 = new ParkingLot(floors_lot2);
+
         lot2.enter(new Car("TN06F6"), 0);
 
         System.out.println("Test 12 expected Duplicate registration number");
@@ -264,9 +298,7 @@ public class Task11 {
     }
 }
 
-
-// ==================== Task12.java ====================
-
+// TASK 12: E-BIKE
 class EBike extends Vehicle {
     EBike(String regNo) {
         super(regNo, 0);
@@ -276,10 +308,12 @@ class EBike extends Vehicle {
         if (minutes <= 0) {
             return 0;
         }
+
         return 15;
     }
 }
 
+// DELIVERY VAN
 class DeliveryVan extends Vehicle {
     int entryHour;
 
@@ -299,6 +333,7 @@ class DeliveryVan extends Vehicle {
     }
 }
 
+// ONE DAY PASS
 class OneDayPass {
     int day;
 
@@ -311,8 +346,10 @@ class OneDayPass {
     }
 }
 
-public class Task12 {
+// TASK 12
+class Task12 {
     public static void main(String[] args) {
+
         int[] floors_lot = {20, 35, 50, 40, 60};
         ParkingLot lot = new ParkingLot(floors_lot);
 
@@ -325,36 +362,44 @@ public class Task12 {
         System.out.println("Test 1 expected 205 actual " + capacity);
 
         lot.enter(new EBike("EB1"), 600);
+
         System.out.println("Test 2 expected 15.0 actual "
                 + lot.exit("EB1", 780, false, 0));
 
         lot.enter(new DeliveryVan("DV1", 10), 600);
+
         System.out.println("Test 3 expected 120.0 actual "
                 + lot.exit("DV1", 720, false, 0));
 
         lot.enter(new DeliveryVan("DV2", 18), 1080);
+
         System.out.println("Test 4 expected 60.0 actual "
                 + lot.exit("DV2", 1200, false, 0));
 
         lot.enter(new DeliveryVan("DV3", 17), 1020);
+
         System.out.println("Test 5 expected 60.0 actual "
                 + lot.exit("DV3", 1140, false, 0));
 
         OneDayPass pass = new OneDayPass(27);
 
         lot.enter(new Car("V1"), 600);
+
         System.out.println("Test 6 expected 0.0 actual "
                 + lot.exit("V1", 900, pass.isValid(27), 0));
 
         lot.enter(new Car("V2"), 600);
+
         System.out.println("Test 7 expected 60.0 actual "
                 + lot.exit("V2", 720, pass.isValid(28), 0));
 
         lot.enter(new ElectricCar("EV1"), 0);
+
         System.out.println("Test 8 expected 180.0 actual "
                 + lot.exit("EV1", 90, false, 10));
 
         lot.enter(new TwoWheeler("TW1"), 0);
+
         System.out.println("Test 9 expected 30.0 actual "
                 + lot.exit("TW1", 130, false, 0));
 
