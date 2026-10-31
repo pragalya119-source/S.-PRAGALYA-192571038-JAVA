@@ -1,0 +1,141 @@
+// ========== Main.java ==========
+package parking.app;
+
+import parking.model.ParkingTicket;
+import parking.service.ParkingService;
+
+class BadTicket {
+    public int minutes;
+}
+
+public class Main {
+    public static void main(String[] args) {
+        int[] floors_service = {2, 1};
+        ParkingService service = new ParkingService(floors_service);
+
+        ParkingTicket t = service.park("TN01AB1111");
+        System.out.println(t.getTicketNo() + " " + t.getFloor() + " " + t.getSlot());
+
+        t.setMinutes(-5);
+        System.out.println(service.leave(t, 130));
+        System.out.println(t.getMinutes());
+
+        Integer a = 127;
+        Integer b = 127;
+        Integer c = 1000;
+        Integer d = 1000;
+
+        System.out.println(a == b);
+        System.out.println(c == d);
+        System.out.println(c.equals(d));
+
+        BadTicket bad = new BadTicket();
+        bad.minutes = -999;
+        System.out.println(bad.minutes);
+    }
+}
+
+
+// ========== ParkingTicket.java ==========
+package parking.model;
+
+public class ParkingTicket {
+    private static int count = 0;
+    private int ticketNo;
+    private String regNo;
+    private int floor;
+    private int slot;
+    private int minutes;
+
+    public ParkingTicket(String regNo, int floor, int slot) {
+        count++;
+        this.ticketNo = count;
+        this.regNo = regNo;
+        setFloor(floor);
+        setSlot(slot);
+    }
+
+    public int getTicketNo() {
+        return ticketNo;
+    }
+
+    public String getRegNo() {
+        return regNo;
+    }
+
+    public int getFloor() {
+        return floor;
+    }
+
+    public int getSlot() {
+        return slot;
+    }
+
+    public int getMinutes() {
+        return minutes;
+    }
+
+    public void setFloor(int floor) {
+        if (floor < 0) {
+            System.out.println("Invalid floor");
+        } else {
+            this.floor = floor;
+        }
+    }
+
+    public void setSlot(int slot) {
+        if (slot < 0) {
+            System.out.println("Invalid slot");
+        } else {
+            this.slot = slot;
+        }
+    }
+
+    public void setMinutes(int minutes) {
+        if (minutes < 0) {
+            System.out.println("Minutes cannot be negative");
+        } else {
+            this.minutes = minutes;
+        }
+    }
+}
+
+
+// ========== ParkingService.java ==========
+package parking.service;
+
+import parking.model.ParkingTicket;
+
+public class ParkingService {
+    private String[][] slots;
+
+    public ParkingService(int[] slotsPerFloor) {
+        slots = new String[slotsPerFloor.length][];
+
+        for (int f = 0; f < slotsPerFloor.length; f++) {
+            slots[f] = new String[slotsPerFloor[f]];
+        }
+    }
+
+    public ParkingTicket park(String regNo) {
+        for (int f = 0; f < slots.length; f++) {
+            for (int s = 0; s < slots[f].length; s++) {
+                if (slots[f][s] == null) {
+                    slots[f][s] = regNo;
+                    return new ParkingTicket(regNo, f, s);
+                }
+            }
+        }
+        return null;
+    }
+
+    public boolean leave(ParkingTicket t, int minutes) {
+        if (slots[t.getFloor()][t.getSlot()] == null) {
+            return false;
+        }
+
+        t.setMinutes(minutes);
+        slots[t.getFloor()][t.getSlot()] = null;
+        return true;
+    }
+}
