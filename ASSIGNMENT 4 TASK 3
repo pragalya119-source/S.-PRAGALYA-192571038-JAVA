@@ -1,0 +1,55 @@
+import java.util.Scanner;
+
+class Main {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+
+        String[] books = {
+            "Java Programming",
+            "Python Basics",
+            "Data Structures",
+            "Database Management"
+        };
+
+        System.out.print("Enter Book Title: ");
+        String search = sc.nextLine();
+
+        System.out.println("Select Category:");
+        System.out.println("1. All");
+        System.out.println("2. Programming");
+        System.out.println("3. Database");
+
+        System.out.print("Enter Choice: ");
+        int choice = sc.nextInt();
+
+        boolean found = false;
+
+        for (String book : books) {
+            if (book.toLowerCase().contains(search.toLowerCase())) {
+                System.out.println("Book Found: " + book);
+                found = true;
+            }
+        }
+
+        if (!found) {
+            System.out.println("No Books Found");
+        }
+
+        System.out.println("1. Previous");
+        System.out.println("2. Next");
+        System.out.println("3. Reserve");
+
+        System.out.print("Enter Option: ");
+        int option = sc.nextInt();
+
+        if (option == 3) {
+            System.out.println("Book Reserved Successfully");
+        } else if (option == 1) {
+            System.out.println("Previous Page");
+        } else if (option == 2) {
+            System.out.println("Next Page");
+        } else {
+            System.out.println("Invalid Option");
+        }
+    }
+}
