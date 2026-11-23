@@ -1,0 +1,86 @@
+import java.util.Scanner;
+
+class Main {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+
+        String[] studentIds = new String[100];
+        String[] events = new String[100];
+
+        int count = 0;
+
+        while (true) {
+            System.out.println("\n1. Register");
+            System.out.println("2. View Registrations");
+            System.out.println("3. Filter Event");
+            System.out.println("4. Exit");
+
+            System.out.print("Enter Choice: ");
+            int choice = sc.nextInt();
+            sc.nextLine();
+
+            if (choice == 1) {
+                System.out.print("Enter Student ID: ");
+                String id = sc.nextLine();
+
+                System.out.print("Enter Event Name: ");
+                String event = sc.nextLine();
+
+                if (id.trim().isEmpty() || event.trim().isEmpty()) {
+                    System.out.println("Invalid Input");
+                    continue;
+                }
+
+                boolean duplicate = false;
+
+                for (int i = 0; i < count; i++) {
+                    if (studentIds[i].equalsIgnoreCase(id)
+                            && events[i].equalsIgnoreCase(event)) {
+                        duplicate = true;
+                        break;
+                    }
+                }
+
+                if (duplicate) {
+                    System.out.println("Already Registered");
+                } else {
+                    studentIds[count] = id;
+                    events[count] = event;
+                    count++;
+                    System.out.println("Registration Successful");
+                }
+
+            } else if (choice == 2) {
+                System.out.println("Student ID\tEvent");
+
+                for (int i = 0; i < count; i++) {
+                    System.out.println(studentIds[i] + "\t\t" + events[i]);
+                }
+
+            } else if (choice == 3) {
+                System.out.print("Enter Event Name: ");
+                String search = sc.nextLine();
+
+                boolean found = false;
+
+                for (int i = 0; i < count; i++) {
+                    if (events[i].equalsIgnoreCase(search)) {
+                        System.out.println(studentIds[i] + " - " + events[i]);
+                        found = true;
+                    }
+                }
+
+                if (!found) {
+                    System.out.println("No Registrations Found");
+                }
+
+            } else if (choice == 4) {
+                break;
+            } else {
+                System.out.println("Invalid Choice");
+            }
+        }
+
+        sc.close();
+    }
+}
