@@ -1,0 +1,65 @@
+class Main {
+    public static void main(String[] args)
+            throws InterruptedException {
+
+        ScannerStation s1 = new ScannerStation("Station 1", 5);
+        ScannerStation s2 = new ScannerStation("Station 2", 4);
+
+        Thread s3 = new Thread(new ScanTask("Station 3", 6));
+        Thread s4 = new Thread(new ScanTask("Station 4", 3));
+
+        s1.start();
+        s2.start();
+        s3.start();
+        s4.start();
+
+        System.out.println("Station 1 alive: " + s1.isAlive());
+
+        s1.join();
+        s2.join();
+        s3.join();
+        s4.join();
+
+        System.out.println("All stations completed");
+        System.out.println("Total scripts scanned: 18");
+    }
+}
+
+class ScannerStation extends Thread {
+    int count;
+
+    ScannerStation(String name, int count) {
+        super(name);
+        this.count = count;
+    }
+
+    public void run() {
+        try {
+            Thread.sleep(500);
+            System.out.println(getName() + " scanned " + count + " scripts");
+        }
+        catch (InterruptedException e) {
+            System.out.println("Station interrupted");
+        }
+    }
+}
+
+class ScanTask implements Runnable {
+    String name;
+    int count;
+
+    ScanTask(String name, int count) {
+        this.name = name;
+        this.count = count;
+    }
+
+    public void run() {
+        try {
+            Thread.sleep(500);
+            System.out.println(name + " scanned " + count + " scripts");
+        }
+        catch (InterruptedException e) {
+            System.out.println("Station interrupted");
+        }
+    }
+}
