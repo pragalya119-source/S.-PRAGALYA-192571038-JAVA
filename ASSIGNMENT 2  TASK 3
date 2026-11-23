@@ -1,0 +1,38 @@
+import java.util.*;
+
+class Main {
+    public static void main(String[] args) {
+        HashSet<Student> students = new HashSet<>();
+
+        students.add(new Student(101, "Arun"));
+        students.add(new Student(102, "Divya"));
+        students.add(new Student(101, "Arun"));
+
+        System.out.println("Unique students: " + students.size());
+    }
+}
+
+class Student {
+    int regNo;
+    String name;
+
+    Student(int regNo, String name) {
+        this.regNo = regNo;
+        this.name = name;
+    }
+
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+
+        if (!(obj instanceof Student))
+            return false;
+
+        Student s = (Student) obj;
+        return regNo == s.regNo;
+    }
+
+    public int hashCode() {
+        return regNo;
+    }
+}
