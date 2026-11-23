@@ -1,0 +1,45 @@
+import java.util.*;
+
+class Main {
+    public static void main(String[] args) {
+        HashMap<Integer, String> hashMap = new HashMap<>();
+        TreeMap<Integer, String> treeMap = new TreeMap<>();
+        LinkedHashMap<Integer, String> linkedMap = new LinkedHashMap<>();
+
+        hashMap.put(103, "Tablet");
+        hashMap.put(101, "Medicine");
+        hashMap.put(102, "Syrup");
+
+        treeMap.put(103, "Tablet");
+        treeMap.put(101, "Medicine");
+        treeMap.put(102, "Syrup");
+
+        linkedMap.put(103, "Tablet");
+        linkedMap.put(101, "Medicine");
+        linkedMap.put(102, "Syrup");
+
+        System.out.println("HashMap: " + hashMap);
+        System.out.println("TreeMap: " + treeMap);
+        System.out.println("LinkedHashMap: " + linkedMap);
+
+        long start, end;
+
+        start = System.nanoTime();
+        for (int i = 0; i < 100000; i++)
+            hashMap.get(101);
+        end = System.nanoTime();
+        System.out.println("HashMap Search Time: " + (end - start));
+
+        start = System.nanoTime();
+        for (int i = 0; i < 100000; i++)
+            treeMap.get(101);
+        end = System.nanoTime();
+        System.out.println("TreeMap Search Time: " + (end - start));
+
+        start = System.nanoTime();
+        for (int i = 0; i < 100000; i++)
+            linkedMap.get(101);
+        end = System.nanoTime();
+        System.out.println("LinkedHashMap Search Time: " + (end - start));
+    }
+}
