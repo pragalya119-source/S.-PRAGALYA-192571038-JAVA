@@ -1,0 +1,59 @@
+import java.io.*;
+
+class Main {
+    public static void main(String[] args) {
+        String data = "Store 1: 5000\nStore 2: 7000\nStore 3: 6000";
+
+        System.out.println("Using try-catch-finally:");
+
+        BufferedReader reader = null;
+
+        try {
+            reader = new BufferedReader(new StringReader(data));
+            String line;
+            int total = 0;
+
+            while ((line = reader.readLine()) != null) {
+                System.out.println(line);
+                total += Integer.parseInt(line.split(": ")[1]);
+            }
+
+            System.out.println("Total Sales: " + total);
+        }
+        catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+        finally {
+            try {
+                if (reader != null) {
+                    reader.close();
+                    System.out.println("File closed");
+                }
+            }
+            catch (IOException e) {
+                System.out.println("Closing error");
+            }
+        }
+
+        System.out.println("\nUsing try-with-resources:");
+
+        try (BufferedReader br =
+                new BufferedReader(new StringReader(data))) {
+
+            String line;
+            int total = 0;
+
+            while ((line = br.readLine()) != null) {
+                System.out.println(line);
+                total += Integer.parseInt(line.split(": ")[1]);
+            }
+
+            System.out.println("Total Sales: " + total);
+        }
+        catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+
+        System.out.println("Resources closed automatically");
+    }
+}
