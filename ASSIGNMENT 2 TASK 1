@@ -1,0 +1,47 @@
+class Main {
+    static String usingString(int n) {
+        String s = "";
+        for (int i = 0; i < n; i++)
+            s = s + "A";
+        return s;
+    }
+
+    static String usingBuilder(int n) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < n; i++)
+            sb.append("A");
+        return sb.toString();
+    }
+
+    static String usingBuffer(int n) {
+        StringBuffer sb = new StringBuffer();
+        for (int i = 0; i < n; i++)
+            sb.append("A");
+        return sb.toString();
+    }
+
+    public static void main(String[] args) {
+        int[] sizes = {5, 1000, 10000};
+
+        for (int n : sizes) {
+            long start, end;
+
+            start = System.nanoTime();
+            usingString(n);
+            end = System.nanoTime();
+            System.out.println("String: " + (end - start));
+
+            start = System.nanoTime();
+            usingBuilder(n);
+            end = System.nanoTime();
+            System.out.println("StringBuilder: " + (end - start));
+
+            start = System.nanoTime();
+            usingBuffer(n);
+            end = System.nanoTime();
+            System.out.println("StringBuffer: " + (end - start));
+
+            System.out.println();
+        }
+    }
+}
