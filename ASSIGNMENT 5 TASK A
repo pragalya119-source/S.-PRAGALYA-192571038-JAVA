@@ -1,0 +1,447 @@
+PART A – JAVA PROGRAMS
+A1 – Design a File Format
+import java.io.*;
+import java.util.*;
+
+class Main {
+    static String file = "buspasses.txt";
+
+    static void add(String id, String reg, String name, int route,
+                    String stop, String validity, double amount)
+                    throws IOException {
+        try (BufferedWriter w = new BufferedWriter(new FileWriter(file, true))) {
+            String n = Base64.getEncoder().encodeToString(name.getBytes("UTF-8"));
+            String s = Base64.getEncoder().encodeToString(stop.getBytes("UTF-8"));
+
+            w.write(id + "," + reg + "," + n + "," + route + "," +
+                    s + "," + validity + "," + amount);
+            w.newLine();
+        }
+    }
+
+    static String[] find(String id) throws IOException {
+        File f = new File(file);
+        if (!f.exists()) return null;
+
+        try (BufferedReader r = new BufferedReader(new FileReader(f))) {
+            String line;
+            while ((line = r.readLine()) != null) {
+                String[] p = line.split(",", -1);
+                if (p.length != 7) continue;
+
+                try {
+                    Integer.parseInt(p[3]);
+                    Double.parseDouble(p[6]);
+
+                    if (p[0].equals(id)) {
+                        p[2] = new String(Base64.getDecoder().decode(p[2]), "UTF-8");
+                        p[4] = new String(Base64.getDecoder().decode(p[4]), "UTF-8");
+                        return p;
+                    }
+                } catch (Exception e) {
+                    continue;
+                }
+            }
+        }
+        return null;
+    }
+
+    static void listRoute(int route) throws IOException {
+        File f = new File(file);
+        if (!f.exists()) return;
+
+        try (BufferedReader r = new BufferedReader(new FileReader(f))) {
+            String line;
+            while ((line = r.readLine()) != null) {
+                String[] p = line.split(",", -1);
+                if (p.length != 7) continue;
+
+                try {
+                    if (Integer.parseInt(p[3]) == route)
+                        System.out.println(Arrays.toString(p));
+                } catch (NumberFormatException e) {
+                    continue;
+                }
+            }
+        }
+    }
+
+    static void writeBinary(String id, String reg, String name, int route,
+                            String stop, String validity, double amount)
+                            throws IOException {
+        try (DataOutputStream out = new DataOutputStream(
+                new FileOutputStream("passes.dat", true))) {
+            out.writeUTF(id);
+            out.writeUTF(reg);
+            out.writeUTF(name);
+            out.writeInt(route);
+            out.writeUTF(stop);
+            out.writeUTF(validity);
+            out.writeDouble(amount);
+        }
+    }
+
+    public static void main(String[] args) throws Exception {
+        new File(file).delete();
+
+        add("BP101", "192311001", "Arun Kumar", 12,
+            "Main Gate", "31-12-2026", 4500);
+
+        add("BP102", "192311002", "Divya", 7,
+            "Library", "31-12-2026", 4200);
+
+        try (BufferedWriter w = new BufferedWriter(new FileWriter(file, true))) {
+            w.write("BP103,DAMAGED,LINE");
+            w.newLine();
+        }
+
+        add("BP104", "192311004", "Ravi", 7,
+            "Hostel", "31-12-2026", 4000);
+
+        System.out.println("Find BP101:");
+        System.out.println(Arrays.toString(find("BP101")));
+
+        System.out.println("Find BP999:");
+        System.out.println(Arrays.toString(find("BP999")));
+
+        System.out.println("Route 7 passes:");
+        listRoute(7);
+
+        writeBinary("BP101", "192311001", "Arun Kumar", 12,
+                    "Main Gate", "31-12-2026", 4500);
+
+        System.out.println("Text and binary files created.");
+    }
+}
+A2 – Buffered and Unbuffered File Reading
+import java.io.*;
+import java.nio.file.*;
+import java.util.*;
+
+class Main {
+
+    static long countUnbuffered(String file) throws IOException {
+        long lines = 0;
+
+        try (FileInputStream in = new FileInputStream(file)) {
+            int ch;
+
+            while ((ch = in.read()) != -1) {
+                if (ch == '\n')
+                    lines++;
+            }
+        }
+
+        return lines;
+    }
+
+    static long countBuffered(String file) throws IOException {
+        long lines = 0;
+
+        try (BufferedReader r = new BufferedReader(new FileReader(file))) {
+            while (r.readLine() != null)
+                lines++;
+        }
+
+        return lines;
+    }
+
+    static long countWithBuffer(String file) throws IOException {
+        long lines = 0;
+        byte[] buffer = new byte[8192];
+
+        try (FileInputStream in = new FileInputStream(file)) {
+            int n;
+
+            while ((n = in.read(buffer)) != -1) {
+                for (int i = 0; i < n; i++) {
+                    if (buffer[i] == '\n')
+                        lines++;
+                }
+            }
+        }
+
+        return lines;
+    }
+
+    public static void main(String[] args) throws Exception {
+        String file = "attendance.txt";
+
+        try (BufferedWriter w = new BufferedWriter(new FileWriter(file))) {
+            for (int i = 1; i <= 10000; i++) {
+                w.write("Student " + i + " Present");
+                w.newLine();
+            }
+        }
+
+        long start = System.nanoTime();
+        long a = countUnbuffered(file);
+        long t1 = System.nanoTime() - start;
+
+        start = System.nanoTime();
+        long b = countBuffered(file);
+        long t2 = System.nanoTime() - start;
+
+        start = System.nanoTime();
+        long c = countWithBuffer(file);
+        long t3 = System.nanoTime() - start;
+
+        System.out.println("Unbuffered lines: " + a);
+        System.out.println("Unbuffered time: " + t1 + " ns");
+
+        System.out.println("Buffered lines: " + b);
+        System.out.println("Buffered time: " + t2 + " ns");
+
+        System.out.println("Byte buffer lines: " + c);
+        System.out.println("Byte buffer time: " + t3 + " ns");
+
+        List<String> all = Files.readAllLines(Paths.get(file));
+        System.out.println("readAllLines count: " + all.size());
+    }
+}
+A3 – Data Access Object (DAO)
+import java.util.*;
+
+class Main {
+
+    interface Dao<T, K> {
+        void insert(T item);
+        T findById(K id);
+        List<T> findAll();
+        void update(T item);
+        void delete(K id);
+    }
+
+    static class Student {
+        int id;
+        String name;
+        String department;
+
+        Student(int id, String name, String department) {
+            this.id = id;
+            this.name = name;
+            this.department = department;
+        }
+
+        public String toString() {
+            return id + " " + name + " " + department;
+        }
+    }
+
+    static class StudentDao implements Dao<Student, Integer> {
+        Map<Integer, Student> table = new LinkedHashMap<>();
+
+        public void insert(Student s) {
+            table.put(s.id, s);
+        }
+
+        public Student findById(Integer id) {
+            return table.get(id);
+        }
+
+        public List<Student> findAll() {
+            return new ArrayList<>(table.values());
+        }
+
+        public void update(Student s) {
+            if (table.containsKey(s.id))
+                table.put(s.id, s);
+        }
+
+        public void delete(Integer id) {
+            table.remove(id);
+        }
+    }
+
+    public static void main(String[] args) {
+        StudentDao dao = new StudentDao();
+
+        dao.insert(new Student(101, "Arun", "CSE"));
+        dao.insert(new Student(102, "Divya", "ECE"));
+        dao.insert(new Student(103, "Ravi", "IT"));
+
+        System.out.println("Find Student:");
+        System.out.println(dao.findById(102));
+
+        System.out.println("All Students:");
+        for (Student s : dao.findAll())
+            System.out.println(s);
+
+        dao.update(new Student(102, "Divya", "CSE"));
+
+        System.out.println("After Update:");
+        System.out.println(dao.findById(102));
+
+        dao.delete(101);
+
+        System.out.println("After Delete:");
+        for (Student s : dao.findAll())
+            System.out.println(s);
+    }
+}
+
+
+A4 – Object Serialization
+import java.io.*;
+import java.util.*;
+
+class Main {
+
+    static class Hostel implements Serializable {
+        private static final long serialVersionUID = 1L;
+        ArrayList<Room> rooms = new ArrayList<>();
+    }
+
+    static class Room implements Serializable {
+        private static final long serialVersionUID = 1L;
+        int roomNo;
+        ArrayList<Resident> residents = new ArrayList<>();
+
+        Room(int roomNo) {
+            this.roomNo = roomNo;
+        }
+    }
+
+    static class Resident implements Serializable {
+        private static final long serialVersionUID = 1L;
+
+        String name;
+        String registerNo;
+        transient String password;
+        transient Object databaseConnection;
+
+        Resident(String name, String registerNo, String password) {
+            this.name = name;
+            this.registerNo = registerNo;
+            this.password = password;
+        }
+    }
+
+    public static void main(String[] args) throws Exception {
+        Hostel hostel = new Hostel();
+
+        Room room = new Room(101);
+
+        room.residents.add(new Resident("Arun", "192311001", "secret123"));
+        room.residents.add(new Resident("Divya", "192311002", "pass456"));
+
+        hostel.rooms.add(room);
+
+        ObjectOutputStream out = new ObjectOutputStream(
+                new FileOutputStream("hostel.dat"));
+
+        out.writeObject(hostel);
+        out.close();
+
+        ObjectInputStream in = new ObjectInputStream(
+                new FileInputStream("hostel.dat"));
+
+        Hostel loaded = (Hostel) in.readObject();
+        in.close();
+
+        for (Room r : loaded.rooms) {
+            System.out.println("Room Number: " + r.roomNo);
+
+            for (Resident resident : r.residents) {
+                System.out.println("Name: " + resident.name);
+                System.out.println("Register Number: " + resident.registerNo);
+                System.out.println("Password: " + resident.password);
+            }
+        }
+
+        System.out.println("Serialization completed.");
+    }
+}
+
+
+A5 – Transactions and SQL Injection
+import java.sql.*;
+
+class Main {
+
+    static class Wallet {
+        String name;
+        int balance;
+
+        Wallet(String name, int balance) {
+            this.name = name;
+            this.balance = balance;
+        }
+    }
+
+    static void transfer(Wallet from, Wallet to, int amount,
+                         boolean forceFailure) {
+
+        int oldFrom = from.balance;
+        int oldTo = to.balance;
+
+        try {
+            if (amount <= 0 || from.balance < amount)
+                throw new RuntimeException("Invalid transfer");
+
+            from.balance -= amount;
+
+            if (forceFailure)
+                throw new RuntimeException("Simulated failure");
+
+            to.balance += amount;
+
+            System.out.println("Transaction committed.");
+
+        } catch (RuntimeException e) {
+            from.balance = oldFrom;
+            to.balance = oldTo;
+
+            System.out.println("Transaction rolled back.");
+            System.out.println(e.getMessage());
+        }
+    }
+
+    static boolean safeLogin(Connection con, String id, String pwd)
+            throws SQLException {
+
+        String sql = "SELECT * FROM users WHERE id=? AND pwd=?";
+
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, id);
+            ps.setString(2, pwd);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        }
+    }
+
+    public static void main(String[] args) {
+
+        Wallet hostel = new Wallet("Hostel", 2000);
+        Wallet canteen = new Wallet("Canteen", 1000);
+
+        System.out.println("Before Transfer:");
+        System.out.println("Hostel: " + hostel.balance);
+        System.out.println("Canteen: " + canteen.balance);
+
+        transfer(hostel, canteen, 500, false);
+
+        System.out.println("\nAfter Successful Transfer:");
+        System.out.println("Hostel: " + hostel.balance);
+        System.out.println("Canteen: " + canteen.balance);
+
+        transfer(hostel, canteen, 500, true);
+
+        System.out.println("\nAfter Failed Transfer:");
+        System.out.println("Hostel: " + hostel.balance);
+        System.out.println("Canteen: " + canteen.balance);
+
+        String id = "admin";
+        String pwd = "' OR '1'='1";
+
+        String unsafeSQL = "SELECT * FROM users WHERE id='" +
+                id + "' AND pwd='" + pwd + "'";
+
+        System.out.println("\nUnsafe SQL:");
+        System.out.println(unsafeSQL);
+
+        System.out.println("Use PreparedStatement to prevent SQL injection.");
+    }
+}
