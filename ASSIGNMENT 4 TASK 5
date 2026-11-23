@@ -1,0 +1,121 @@
+5(a) Frame implements ActionListener – Console version
+import java.util.Scanner;
+
+class Main {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+
+        System.out.print("Enter INR Amount: ");
+        double amount = sc.nextDouble();
+
+        System.out.print("Enter Currency (USD/EUR): ");
+        String currency = sc.next();
+
+        if (amount <= 0) {
+            System.out.println("Invalid amount");
+        } else if (currency.equalsIgnoreCase("USD")) {
+            System.out.println("Result: " + (amount * 0.012));
+        } else if (currency.equalsIgnoreCase("EUR")) {
+            System.out.println("Result: " + (amount * 0.011));
+        } else {
+            System.out.println("Invalid Currency");
+        }
+    }
+}
+5(b) Named Inner Class – Console version
+import java.util.Scanner;
+
+class Main {
+    static class Converter {
+        void convert(double amount, String currency) {
+            if (amount <= 0) {
+                System.out.println("Invalid amount");
+            } else if (currency.equalsIgnoreCase("USD")) {
+                System.out.println("Result: " + (amount * 0.012));
+            } else if (currency.equalsIgnoreCase("EUR")) {
+                System.out.println("Result: " + (amount * 0.011));
+            } else {
+                System.out.println("Invalid Currency");
+            }
+        }
+    }
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+
+        System.out.print("Enter INR Amount: ");
+        double amount = sc.nextDouble();
+
+        System.out.print("Enter Currency: ");
+        String currency = sc.next();
+
+        Converter c = new Converter();
+        c.convert(amount, currency);
+    }
+}
+5(c) Anonymous Inner Class – Console version
+import java.util.Scanner;
+
+class Main {
+    interface Convert {
+        void calculate(double amount, String currency);
+    }
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+
+        Convert c = new Convert() {
+            public void calculate(double amount, String currency) {
+                if (amount <= 0) {
+                    System.out.println("Invalid amount");
+                } else if (currency.equalsIgnoreCase("USD")) {
+                    System.out.println("Result: " + (amount * 0.012));
+                } else if (currency.equalsIgnoreCase("EUR")) {
+                    System.out.println("Result: " + (amount * 0.011));
+                } else {
+                    System.out.println("Invalid Currency");
+                }
+            }
+        };
+
+        System.out.print("Enter INR Amount: ");
+        double amount = sc.nextDouble();
+
+        System.out.print("Enter Currency: ");
+        String currency = sc.next();
+
+        c.calculate(amount, currency);
+    }
+}
+5(d) Lambda Expression – Console version
+import java.util.Scanner;
+
+class Main {
+    interface Convert {
+        void calculate(double amount, String currency);
+    }
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+
+        Convert c = (amount, currency) -> {
+            if (amount <= 0) {
+                System.out.println("Invalid amount");
+            } else if (currency.equalsIgnoreCase("USD")) {
+                System.out.println("Result: " + (amount * 0.012));
+            } else if (currency.equalsIgnoreCase("EUR")) {
+                System.out.println("Result: " + (amount * 0.011));
+            } else {
+                System.out.println("Invalid Currency");
+            }
+        };
+
+        System.out.print("Enter INR Amount: ");
+        double amount = sc.nextDouble();
+
+        System.out.print("Enter Currency: ");
+        String currency = sc.next();
+
+        c.calculate(amount, currency);
+    }
+}
