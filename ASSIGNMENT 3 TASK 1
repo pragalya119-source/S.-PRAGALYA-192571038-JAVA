@@ -1,0 +1,50 @@
+import java.util.*;
+
+class Main {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        int balance = 10000;
+        boolean cardReaderAvailable = true;
+
+        try {
+            System.out.print("Enter account number: ");
+            String account = sc.nextLine();
+
+            if (!account.matches("[0-9]+")) {
+                throw new NumberFormatException("Invalid account number");
+            }
+
+            System.out.print("Enter withdrawal amount: ");
+            int amount = Integer.parseInt(sc.nextLine());
+
+            if (amount < 0) {
+                throw new IllegalArgumentException("Negative amount not allowed");
+            }
+
+            if (amount > balance) {
+                throw new ArithmeticException("Insufficient balance");
+            }
+
+            if (!cardReaderAvailable) {
+                throw new java.io.FileNotFoundException("Card reader file is missing");
+            }
+
+            System.out.println("Card verified successfully");
+            System.out.println("Withdrawal successful");
+            System.out.println("Remaining balance: " + (balance - amount));
+        }
+        catch (NumberFormatException e) {
+            System.out.println("Error: Enter numbers only");
+        }
+        catch (java.io.FileNotFoundException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+        catch (IllegalArgumentException | ArithmeticException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+        finally {
+            System.out.println("ATM transaction completed");
+            sc.close();
+        }
+    }
+}
