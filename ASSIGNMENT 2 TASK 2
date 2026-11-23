@@ -1,0 +1,58 @@
+import java.util.*;
+
+class Main {
+    public static void main(String[] args) {
+        int[] sizes = {1000, 5000, 10000};
+
+        for (int n : sizes) {
+            ArrayList<Integer> arrayList = new ArrayList<>();
+            LinkedList<Integer> linkedList = new LinkedList<>();
+            ArrayDeque<Integer> deque = new ArrayDeque<>();
+
+            long start, end;
+
+            start = System.nanoTime();
+            for (int i = 0; i < n; i++)
+                arrayList.add(i);
+            end = System.nanoTime();
+            System.out.println("ArrayList Add: " + (end - start));
+
+            start = System.nanoTime();
+            for (int i = 0; i < n; i++)
+                linkedList.add(i);
+            end = System.nanoTime();
+            System.out.println("LinkedList Add: " + (end - start));
+
+            start = System.nanoTime();
+            for (int i = 0; i < n; i++)
+                arrayList.get(i);
+            end = System.nanoTime();
+            System.out.println("ArrayList Access: " + (end - start));
+
+            start = System.nanoTime();
+            for (int i = 0; i < n; i++)
+                linkedList.get(i);
+            end = System.nanoTime();
+            System.out.println("LinkedList Access: " + (end - start));
+
+            start = System.nanoTime();
+            for (int i : arrayList) {
+            }
+            end = System.nanoTime();
+            System.out.println("ArrayList Iteration: " + (end - start));
+
+            start = System.nanoTime();
+            for (int i : linkedList) {
+            }
+            end = System.nanoTime();
+            System.out.println("LinkedList Iteration: " + (end - start));
+
+            deque.addFirst(10);
+            deque.addLast(20);
+            deque.removeFirst();
+
+            System.out.println("ArrayDeque: " + deque);
+            System.out.println();
+        }
+    }
+}
