@@ -1,0 +1,53 @@
+import java.util.*;
+
+class Main {
+    public static void main(String[] args) {
+        Leaderboard<Team> board = new Leaderboard<>();
+
+        board.add(new Team("Eagles", 9, 6));
+        board.add(new Team("Bisons", 9, 4));
+        board.add(new Team("Panthers", 9, 4));
+        board.add(new Team("Cobras", 6, 1));
+
+        Comparator<Team> ranking = Comparator
+                .comparingInt((Team t) -> t.points).reversed()
+                .thenComparing(Comparator.comparingInt((Team t) -> t.goalDiff).reversed())
+                .thenComparing(t -> t.name);
+
+        board.sort(ranking);
+
+        System.out.println(board.getTeams());
+    }
+}
+
+class Team {
+    String name;
+    int points;
+    int goalDiff;
+
+    Team(String name, int points, int goalDiff) {
+        this.name = name;
+        this.points = points;
+        this.goalDiff = goalDiff;
+    }
+
+    public String toString() {
+        return name + "(" + points + "," + goalDiff + ")";
+    }
+}
+
+class Leaderboard<T> {
+    ArrayList<T> teams = new ArrayList<>();
+
+    void add(T team) {
+        teams.add(team);
+    }
+
+    void sort(Comparator<T> comparator) {
+        teams.sort(comparator);
+    }
+
+    ArrayList<T> getTeams() {
+        return teams;
+    }
+}
