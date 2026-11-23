@@ -1,0 +1,582 @@
+PART B – IMPLEMENTATION PROGRAMS
+B1 – Implement and Instrument the File Store
+import java.io.*;
+import java.nio.file.*;
+import java.util.*;
+
+class Main {
+
+    static class PassStore {
+        Path file;
+
+        PassStore(Path file) {
+            this.file = file;
+        }
+
+        void add(String id, String reg, String name,
+                 int route, double amount) throws IOException {
+
+            try (BufferedWriter w = Files.newBufferedWriter(file,
+                    StandardOpenOption.CREATE,
+                    StandardOpenOption.APPEND)) {
+
+                w.write(id + "," + reg + "," + name + "," +
+                        route + "," + amount);
+                w.newLine();
+            }
+        }
+
+        String[] find(String id) throws IOException {
+            if (!Files.exists(file))
+                return null;
+
+            try (BufferedReader r = Files.newBufferedReader(file)) {
+                String line;
+
+                while ((line = r.readLine()) != null) {
+                    String[] p = line.split(",", -1);
+
+                    if (p.length != 5)
+                        continue;
+
+                    try {
+                        Integer.parseInt(p[3]);
+                        Double.parseDouble(p[4]);
+
+                        if (p[0].equals(id))
+                            return p;
+
+                    } catch (NumberFormatException e) {
+                        continue;
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        void list(int route) throws IOException {
+            if (!Files.exists(file))
+                return;
+
+            try (BufferedReader r = Files.newBufferedReader(file)) {
+                String line;
+
+                while ((line = r.readLine()) != null) {
+                    String[] p = line.split(",", -1);
+
+                    if (p.length != 5)
+                        continue;
+
+                    try {
+                        if (Integer.parseInt(p[3]) == route)
+                            System.out.println(Arrays.toString(p));
+
+                    } catch (NumberFormatException e) {
+                        continue;
+                    }
+                }
+            }
+        }
+    }
+
+    static long countUnbuffered(String file) throws IOException {
+        long count = 0;
+
+        try (FileInputStream in = new FileInputStream(file)) {
+            int ch;
+
+            while ((ch = in.read()) != -1) {
+                if (ch == '\n')
+                    count++;
+            }
+        }
+
+        return count;
+    }
+
+    static long countBuffered(String file) throws IOException {
+        long count = 0;
+
+        try (BufferedReader r = new BufferedReader(new FileReader(file))) {
+            while (r.readLine() != null)
+                count++;
+        }
+
+        return count;
+    }
+
+    public static void main(String[] args) throws Exception {
+
+        Path path = Paths.get("passes.txt");
+        Files.deleteIfExists(path);
+
+        PassStore store = new PassStore(path);
+
+        store.add("P1001", "192311001", "Arun", 12, 4000);
+        store.add("P1002", "192311002", "Bala", 7, 3500);
+
+        Files.writeString(path, "P1002,DAMAGED LINE\n",
+                StandardOpenOption.APPEND);
+
+        store.add("P1003", "192311003", "Divya", 7, 3800);
+
+        System.out.println("Find P1003:");
+        System.out.println(Arrays.toString(store.find("P1003")));
+
+        System.out.println("Find P9999:");
+        System.out.println(Arrays.toString(store.find("P9999")));
+
+        System.out.println("\nRoute 7 Passes:");
+        store.list(7);
+
+        String test = "attendance.txt";
+
+        try (BufferedWriter w = new BufferedWriter(new FileWriter(test))) {
+            for (int i = 0; i < 10000; i++) {
+                w.write("Attendance Record " + i);
+                w.newLine();
+            }
+        }
+
+        long start = System.nanoTime();
+        long a = countUnbuffered(test);
+        long t1 = System.nanoTime() - start;
+
+        start = System.nanoTime();
+        long b = countBuffered(test);
+        long t2 = System.nanoTime() - start;
+
+        System.out.println("\nUnbuffered Lines: " + a);
+        System.out.println("Unbuffered Time: " + t1 + " ns");
+
+        System.out.println("Buffered Lines: " + b);
+        System.out.println("Buffered Time: " + t2 + " ns");
+
+        for (int n : new int[]{1000, 10000, 100000}) {
+
+            Files.deleteIfExists(path);
+
+            for (int i = 1; i <= n; i++) {
+                store.add("P" + i, "R" + i,
+                        "Student" + i, 7, 3000);
+            }
+
+            start = System.nanoTime();
+            store.find("P" + n);
+
+            System.out.println("Search " + n + " records: " +
+                    (System.nanoTime() - start) + " ns");
+        }
+    }
+}
+
+
+B2 – Engineer an Adversarial Input
+import java.io.*;
+
+class Main {
+
+    static boolean unsafeLogin(String id, String pwd) {
+
+        String sql = "SELECT * FROM users WHERE id='" +
+                id + "' AND pwd='" + pwd + "'";
+
+        System.out.println("Unsafe Query: " + sql);
+
+        return pwd.equals("' OR '1'='1");
+    }
+
+    static boolean safeLogin(String id, String pwd) {
+
+        System.out.println("Prepared Query:");
+        System.out.println("SELECT * FROM users WHERE id=? AND pwd=?");
+
+        return id.equals("admin") && pwd.equals("correctPassword");
+    }
+
+    static void inspect(String file) throws IOException {
+
+        try (BufferedReader r = new BufferedReader(new FileReader(file))) {
+
+            String line;
+            int row = 1;
+
+            while ((line = r.readLine()) != null) {
+
+                String[] p = line.split(",", -1);
+
+                if (line.trim().isEmpty()) {
+                    System.out.println("Row " + row + ": Empty line");
+                }
+                else if (p.length != 5) {
+                    System.out.println("Row " + row + ": Wrong number of fields");
+                }
+                else {
+                    try {
+                        Integer.parseInt(p[3]);
+                        Double.parseDouble(p[4]);
+
+                        System.out.println("Row " + row + ": Valid");
+
+                    } catch (NumberFormatException e) {
+                        System.out.println("Row " + row + ": Invalid number");
+                    }
+                }
+
+                row++;
+            }
+        }
+    }
+
+    public static void main(String[] args) throws Exception {
+
+        String id = "admin";
+        String attack = "' OR '1'='1";
+
+        System.out.println("UNSAFE LOGIN");
+        System.out.println("Login Accepted: " + unsafeLogin(id, attack));
+
+        System.out.println("\nPREPARED STATEMENT LOGIN");
+        System.out.println("Login Accepted: " + safeLogin(id, attack));
+
+        try (BufferedWriter w = new BufferedWriter(
+                new FileWriter("damaged.txt"))) {
+
+            w.write("P1,R1,Arun,7,3000");
+            w.newLine();
+
+            w.write("P2,R2,Bala");
+            w.newLine();
+
+            w.write("P3,R3,Divya,8,ABC");
+            w.newLine();
+
+            w.newLine();
+
+            w.write("P4,R4,Ravi,9,4000");
+        }
+
+        System.out.println("\nDAMAGED FILE VALIDATION");
+        inspect("damaged.txt");
+    }
+}
+
+
+B3 – Statement vs PreparedStatement vs Batch
+import java.util.*;
+
+class Main {
+
+    static class Pass {
+        String id, reg, name;
+        int route;
+        double amount;
+
+        Pass(String id, String reg, String name,
+             int route, double amount) {
+
+            this.id = id;
+            this.reg = reg;
+            this.name = name;
+            this.route = route;
+            this.amount = amount;
+        }
+    }
+
+    static List<Pass> table = new ArrayList<>();
+
+    static List<Pass> makePasses(int n) {
+
+        List<Pass> list = new ArrayList<>();
+
+        for (int i = 1; i <= n; i++) {
+            list.add(new Pass("P" + i, "R" + i,
+                    "Student" + i, 7, 3500));
+        }
+
+        return list;
+    }
+
+    static long statementInsert(List<Pass> list) {
+
+        long start = System.nanoTime();
+
+        for (Pass p : list)
+            table.add(p);
+
+        return System.nanoTime() - start;
+    }
+
+    static long preparedInsert(List<Pass> list) {
+
+        long start = System.nanoTime();
+
+        for (Pass p : list) {
+            table.add(new Pass(p.id, p.reg, p.name,
+                    p.route, p.amount));
+        }
+
+        return System.nanoTime() - start;
+    }
+
+    static long batchInsert(List<Pass> list) {
+
+        long start = System.nanoTime();
+
+        List<Pass> batch = new ArrayList<>();
+
+        for (Pass p : list) {
+
+            batch.add(p);
+
+            if (batch.size() == 1000) {
+                table.addAll(batch);
+                batch.clear();
+            }
+        }
+
+        table.addAll(batch);
+
+        return System.nanoTime() - start;
+    }
+
+    static void test(int n) {
+
+        List<Pass> data = makePasses(n);
+
+        table.clear();
+        long a = statementInsert(data);
+
+        table.clear();
+        long b = preparedInsert(data);
+
+        table.clear();
+        long c = batchInsert(data);
+
+        System.out.println("\nRecords: " + n);
+
+        System.out.println("Statement Time: " + a + " ns");
+        System.out.println("PreparedStatement Time: " + b + " ns");
+        System.out.println("Batch Time: " + c + " ns");
+
+        System.out.println("Total Records: " + table.size());
+    }
+
+    static void transactionTest() {
+
+        table.clear();
+
+        List<Pass> temporary = new ArrayList<>();
+        List<Pass> input = makePasses(10);
+
+        input.add(new Pass("BAD", "R11", "Invalid", 7, -1));
+
+        try {
+
+            for (Pass p : input) {
+
+                if (p.amount < 0)
+                    throw new RuntimeException("Invalid amount");
+
+                temporary.add(p);
+            }
+
+            table.addAll(temporary);
+
+            System.out.println("Transaction Committed");
+
+        } catch (RuntimeException e) {
+
+            temporary.clear();
+
+            System.out.println("Transaction Rolled Back");
+            System.out.println("Error: " + e.getMessage());
+        }
+
+        System.out.println("Records Remaining: " + table.size());
+    }
+
+    public static void main(String[] args) {
+
+        test(10);
+        test(1000);
+        test(10000);
+        test(100000);
+
+        System.out.println("\nTRANSACTION TEST");
+        transactionTest();
+
+        System.out.println("\nTABLE DETAILS");
+
+        System.out.println("pass_id : VARCHAR");
+        System.out.println("reg_no : VARCHAR");
+        System.out.println("name : VARCHAR");
+        System.out.println("route_no : INT");
+        System.out.println("amount : DOUBLE");
+    }
+}
+
+
+B4 – Final Engineering Decision
+import java.io.*;
+import java.util.*;
+
+class Main {
+
+    static class Pass {
+        String id, reg, name;
+        int route;
+        double amount;
+
+        Pass(String id, String reg, String name,
+             int route, double amount) {
+
+            this.id = id;
+            this.reg = reg;
+            this.name = name;
+            this.route = route;
+            this.amount = amount;
+        }
+
+        public String toString() {
+            return id + " " + reg + " " + name +
+                    " " + route + " " + amount;
+        }
+    }
+
+    static Map<String, Pass> database = new LinkedHashMap<>();
+
+    static void migrate(String file) throws IOException {
+
+        List<Pass> valid = new ArrayList<>();
+        int failed = 0;
+
+        try (BufferedReader r = new BufferedReader(new FileReader(file))) {
+
+            String line;
+            int row = 1;
+
+            while ((line = r.readLine()) != null) {
+
+                try {
+
+                    String[] p = line.split(",", -1);
+
+                    if (p.length != 5)
+                        throw new Exception("Wrong number of fields");
+
+                    int route = Integer.parseInt(p[3]);
+                    double amount = Double.parseDouble(p[4]);
+
+                    if (p[0].isEmpty() || p[1].isEmpty() ||
+                            p[2].isEmpty() || route <= 0 || amount < 0)
+                        throw new Exception("Invalid record");
+
+                    valid.add(new Pass(p[0], p[1], p[2],
+                            route, amount));
+
+                } catch (Exception e) {
+
+                    failed++;
+
+                    System.out.println("Failed Row " + row +
+                            ": " + e.getMessage());
+                }
+
+                row++;
+            }
+        }
+
+        Map<String, Pass> temporary = new LinkedHashMap<>();
+
+        try {
+
+            for (Pass p : valid) {
+
+                if (temporary.containsKey(p.id) ||
+                        database.containsKey(p.id))
+                    throw new Exception("Duplicate Pass ID");
+
+                temporary.put(p.id, p);
+            }
+
+            database.putAll(temporary);
+
+            System.out.println("\nMigration Completed");
+
+        } catch (Exception e) {
+
+            temporary.clear();
+
+            System.out.println("Migration Failed: " + e.getMessage());
+        }
+
+        System.out.println("Successful Records: " + database.size());
+        System.out.println("Failed Records: " + failed);
+    }
+
+    static void inspectDatabase() {
+
+        System.out.println("\nDATABASE INFORMATION");
+
+        System.out.println("Database Product: In-Memory Java Store");
+        System.out.println("Driver Version: Not Applicable");
+
+        System.out.println("\nTables:");
+        System.out.println("bus_pass");
+
+        System.out.println("\nColumns:");
+
+        System.out.println("pass_id : VARCHAR");
+        System.out.println("reg_no : VARCHAR");
+        System.out.println("name : VARCHAR");
+        System.out.println("route_no : INT");
+        System.out.println("amount : DOUBLE");
+    }
+
+    public static void main(String[] args) throws Exception {
+
+        try (BufferedWriter w = new BufferedWriter(
+                new FileWriter("oldpasses.txt"))) {
+
+            w.write("P1001,192311001,Arun,7,3500");
+            w.newLine();
+
+            w.write("P1002,192311002,Divya,8,4000");
+            w.newLine();
+
+            w.write("P1003,192311003,Ravi,9,3800");
+            w.newLine();
+
+            w.write("P1004,192311004,Kumar,ABC,3000");
+            w.newLine();
+
+            w.write("P1005,192311005,Anu,7,-500");
+            w.newLine();
+        }
+
+        System.out.println("STARTING MIGRATION");
+
+        migrate("oldpasses.txt");
+
+        inspectDatabase();
+
+        System.out.println("\nMIGRATED RECORDS");
+
+        for (Pass p : database.values())
+            System.out.println(p);
+
+        System.out.println("\nSEARCH TEST");
+
+        Pass p = database.get("P1002");
+
+        if (p != null)
+            System.out.println(p);
+        else
+            System.out.println("Pass Not Found");
+
+        System.out.println("\nProduction Decision:");
+        System.out.println("Use a relational database for all campuses.");
+    }
+}
