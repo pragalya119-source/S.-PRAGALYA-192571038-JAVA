@@ -1,0 +1,27 @@
+import java.util.Scanner;
+
+class Main {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+
+        int count = 0;
+
+        System.out.print("Enter Number of Clicks: ");
+        int n = sc.nextInt();
+
+        for (int i = 1; i <= n; i++) {
+            System.out.print("Enter X coordinate: ");
+            int x = sc.nextInt();
+
+            System.out.print("Enter Y coordinate: ");
+            int y = sc.nextInt();
+
+            count++;
+
+            System.out.println("Dot Drawn at (" + x + ", " + y + ")");
+            System.out.println("Clicks: " + count);
+        }
+
+        System.out.println("Total Clicks: " + count);
+    }
+}
