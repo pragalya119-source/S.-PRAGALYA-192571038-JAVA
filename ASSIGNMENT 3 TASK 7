@@ -1,0 +1,63 @@
+import java.util.*;
+import java.util.concurrent.*;
+
+class Main {
+    public static void main(String[] args)
+            throws InterruptedException {
+
+        ExecutorService executor =
+                Executors.newFixedThreadPool(4);
+
+        ConcurrentHashMap<Integer, String> results =
+                new ConcurrentHashMap<>();
+
+        ConcurrentHashMap<Integer, String> failures =
+                new ConcurrentHashMap<>();
+
+        List<Future<String>> futures = new ArrayList<>();
+
+        for (int i = 1; i <= 10000; i++) {
+            final int id = i;
+
+            Callable<String> task = () -> {
+                if (id == 100) {
+                    throw new Exception("File missing");
+                }
+
+                if (id == 200) {
+                    throw new Exception("File corrupt");
+                }
+
+                return "Student " + id + " result processed";
+            };
+
+            futures.add(executor.submit(task));
+        }
+
+        for (int i = 0; i < futures.size(); i++) {
+            try {
+                String result = futures.get(i).get();
+                results.put(i + 1, result);
+            }
+            catch (ExecutionException e) {
+                failures.put(i + 1, e.getCause().getMessage());
+            }
+        }
+
+        executor.shutdown();
+
+        System.out.println("Total Files: 10000");
+        System.out.println("Successful Files: " + results.size());
+        System.out.println("Failed Files: " + failures.size());
+
+        System.out.println("Failure Details:");
+
+        for (Map.Entry<Integer, String> entry :
+                new TreeMap<>(failures).entrySet()) {
+            System.out.println("Student " + entry.getKey()
+                    + ": " + entry.getValue());
+        }
+
+        System.out.println("Processing completed");
+    }
+}
