@@ -1,0 +1,65 @@
+import java.util.*;
+
+class Main {
+    public static void main(String[] args) {
+        Queue<Patient> s1 = new LinkedList<>();
+        Queue<Patient> s2 = new LinkedList<>();
+        Queue<Patient> s3 = new LinkedList<>();
+        Queue<Patient> s4 = new LinkedList<>();
+        Queue<Patient> s5 = new LinkedList<>();
+
+        addPatient(new Patient("Meena", 1), s1, s2, s3, s4, s5);
+        addPatient(new Patient("Kumar", 1), s1, s2, s3, s4, s5);
+        addPatient(new Patient("Lata", 2), s1, s2, s3, s4, s5);
+        addPatient(new Patient("Ravi", 3), s1, s2, s3, s4, s5);
+        addPatient(new Patient("John", 3), s1, s2, s3, s4, s5);
+        addPatient(new Patient("Asha", 5), s1, s2, s3, s4, s5);
+
+        System.out.println("Treatment Order:");
+
+        while (!s1.isEmpty() || !s2.isEmpty() || !s3.isEmpty()
+                || !s4.isEmpty() || !s5.isEmpty()) {
+
+            if (!s1.isEmpty())
+                System.out.print(s1.poll() + " ");
+            else if (!s2.isEmpty())
+                System.out.print(s2.poll() + " ");
+            else if (!s3.isEmpty())
+                System.out.print(s3.poll() + " ");
+            else if (!s4.isEmpty())
+                System.out.print(s4.poll() + " ");
+            else
+                System.out.print(s5.poll() + " ");
+        }
+    }
+
+    static void addPatient(Patient p, Queue<Patient> s1,
+            Queue<Patient> s2, Queue<Patient> s3,
+            Queue<Patient> s4, Queue<Patient> s5) {
+
+        if (p.severity == 1)
+            s1.add(p);
+        else if (p.severity == 2)
+            s2.add(p);
+        else if (p.severity == 3)
+            s3.add(p);
+        else if (p.severity == 4)
+            s4.add(p);
+        else
+            s5.add(p);
+    }
+}
+
+class Patient {
+    String name;
+    int severity;
+
+    Patient(String name, int severity) {
+        this.name = name;
+        this.severity = severity;
+    }
+
+    public String toString() {
+        return name + "(S" + severity + ")";
+    }
+}
